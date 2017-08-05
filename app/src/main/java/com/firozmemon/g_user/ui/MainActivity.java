@@ -1,4 +1,4 @@
-package com.firozmemon.g_user;
+package com.firozmemon.g_user.ui;
 
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -8,11 +8,18 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
+import com.firozmemon.g_user.R;
+import com.firozmemon.g_user.api.ApiCallingAgent;
+import com.firozmemon.g_user.api.ApiRepository;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainActivityView {
+
+    MainActivityPresenter presenter;
 
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
@@ -36,8 +43,24 @@ public class MainActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        ApiRepository apiRepository = ApiCallingAgent.getInstance();
+        presenter = new MainActivityPresenter(this, apiRepository, AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public void displaySuccess(Object obj) {
 
     }
 
+    @Override
+    public void displayError(String message) {
+        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG)
+                .show();
+    }
 }

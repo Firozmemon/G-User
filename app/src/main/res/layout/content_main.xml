@@ -5,15 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.firozmemon.g_user.MainActivity"
+    tools:context="com.firozmemon.g_user.ui.MainActivity"
     tools:showIn="@layout/activity_main">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        android:paddingBottom="32dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:paddingBottom="32dp">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
