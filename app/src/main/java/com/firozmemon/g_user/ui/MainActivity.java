@@ -19,6 +19,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class MainActivity extends AppCompatActivity implements MainActivityView {
 
+    public static final String DEFAULT_USER_NAME = "firoz memon";
+
     MainActivityPresenter presenter;
 
     @BindView(R.id.coordinatorLayout)
@@ -51,11 +53,20 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
         ApiRepository apiRepository = ApiCallingAgent.getInstance();
         presenter = new MainActivityPresenter(this, apiRepository, AndroidSchedulers.mainThread());
+        presenter.getUserData(DEFAULT_USER_NAME);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        presenter.unsubscribe();
     }
 
     @Override
     public void displaySuccess(Object obj) {
-
+        String textMessage = (String) obj;
+        noDataFound.setText(textMessage);   // Temporary displaying in TextView
     }
 
     @Override

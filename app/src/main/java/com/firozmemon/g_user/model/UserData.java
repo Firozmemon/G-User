@@ -41,4 +41,12 @@ public class UserData {
         this.items = items;
     }
 
+    @Override
+    public String toString() {
+        return "UserData{" +
+                "totalCount=" + totalCount +
+                ", incompleteResults=" + incompleteResults +
+                ", items=" + items +
+                '}';
+    }
 }

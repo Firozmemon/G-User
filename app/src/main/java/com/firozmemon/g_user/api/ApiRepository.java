@@ -1,6 +1,7 @@
 package com.firozmemon.g_user.api;
 
 import com.firozmemon.g_user.model.UserData;
+import com.firozmemon.g_user.ui.PresenterRepository;
 
 import io.reactivex.Single;
 
@@ -10,7 +11,7 @@ import io.reactivex.Single;
 
 public interface ApiRepository {
 
-    Single<UserData> getDefaultUserData();
+    Single<String> getSpecificUser(String username);
 
-    Single<UserData> getSpecificUser(String username);
+    void setPresenterRepository(PresenterRepository presenterRepository);
 }
