@@ -1,4 +1,4 @@
-package com.firozmemon.g_user.ui;
+package com.firozmemon.g_user.ui.main.presenter;
 
 /**
  * Created by firoz on 13/8/17.

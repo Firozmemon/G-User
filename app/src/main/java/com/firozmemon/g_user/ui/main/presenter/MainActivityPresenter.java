@@ -1,7 +1,8 @@
-package com.firozmemon.g_user.ui;
+package com.firozmemon.g_user.ui.main.presenter;
 
 import com.firozmemon.g_user.api.ApiRepository;
 import com.firozmemon.g_user.model.UserData;
+import com.firozmemon.g_user.ui.main.view.MainActivityView;
 
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.CompositeDisposable;
@@ -39,7 +40,7 @@ public class MainActivityPresenter implements PresenterRepository {
 
     @Override
     public void executionSuccessful(UserData userData) {
-        view.displaySuccess(userData.toString());
+        view.displaySuccess(userData);
     }
 
     @Override

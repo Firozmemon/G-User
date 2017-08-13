@@ -1,7 +1,6 @@
 package com.firozmemon.g_user.api;
 
-import com.firozmemon.g_user.model.UserData;
-import com.firozmemon.g_user.ui.PresenterRepository;
+import com.firozmemon.g_user.ui.main.presenter.PresenterRepository;
 
 import io.reactivex.Single;
 
