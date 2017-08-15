@@ -84,6 +84,14 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
         public MyHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (itemClickListener != null)
+                        itemClickListener.onAdapterItemClick(view, getAdapterPosition());
+                }
+            });
         }
     }
 

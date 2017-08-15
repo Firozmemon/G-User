@@ -55,14 +55,12 @@ public class ApiCallingAgent implements ApiRepository {
                     public void onResponse(Call<UserData> call, Response<UserData> response) {
                         // Update Presenter
                         presenterRepository.executionSuccessful(response.body());
-                        return;
                     }
 
                     @Override
                     public void onFailure(Call<UserData> call, Throwable t) {
                         // Update Presenter
                         presenterRepository.executionFailed("FAIL:" + t.getMessage());
-                        return;
                     }
                 });
                 return "";
