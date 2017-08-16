@@ -15,11 +15,17 @@ import android.support.customtabs.CustomTabsSession;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.firozmemon.g_user.R;
@@ -35,13 +41,15 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public class MainActivity extends AppCompatActivity implements MainActivityView, MainActivityAdapter.AdapterItemClickListener {
+public class MainActivity extends AppCompatActivity implements MainActivityView, MainActivityAdapter.AdapterItemClickListener, SearchView.OnQueryTextListener {
 
     public static final String DEFAULT_USER_NAME = "firoz memon";
 
     MainActivityPresenter presenter;
     MainActivityAdapter adapter;
     UserData userData;
+
+    SearchView searchView;
 
     private CustomTabsClient client;
 
@@ -73,6 +81,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
     protected void onStart() {
         super.onStart();
 
+        if (searchView != null && !searchView.isIconified()) {
+            searchView.setIconified(true);
+        }
+
         ApiRepository apiRepository = ApiCallingAgent.getInstance();
         presenter = new MainActivityPresenter(this, apiRepository, AndroidSchedulers.mainThread());
         presenter.getUserData(DEFAULT_USER_NAME);
@@ -83,6 +95,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
         super.onStop();
 
         presenter.unsubscribe();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!searchView.isIconified()) {
+            searchView.setIconified(true);
+        } else
+            super.onBackPressed();
     }
 
     @Override
@@ -129,8 +149,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
     private void setupAndOpenChromeCustomTab(final String url) {
         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(getSession());
         builder.setToolbarColor(ContextCompat.getColor(this, android.R.color.darker_gray));
-        builder.setCloseButtonIcon(BitmapFactory.decodeResource(getResources(),
-                android.R.drawable.ic_menu_share));
+//        builder.setCloseButtonIcon(BitmapFactory.decodeResource(getResources(),
+//                android.R.drawable.ic_menu_share));
         builder.addMenuItem(getString(R.string.connect), setMenuItem());
         builder.setActionButton(BitmapFactory.decodeResource(getResources(),
                 android.R.drawable.ic_menu_share), getString(R.string.share), addActionButton());
@@ -156,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
                     }).show();
         }
     }
-
 
     private CustomTabsSession getSession() {
         return client.newSession(new CustomTabsCallback() {
@@ -185,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
         @Override
         public void onCustomTabsServiceConnected(ComponentName componentName, CustomTabsClient customTabsClient) {
             client = customTabsClient;
+//            client.warmup(1); // If possible, issue the warmup call in advance to reduce waiting when the custom tab activity is started
         }
 
         @Override
@@ -192,4 +212,51 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
             client = null;
         }
     };
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+
+        MenuItem item = menu.findItem(R.id.action_search);
+        searchView = (SearchView) MenuItemCompat.getActionView(item);
+        searchView.setOnQueryTextListener(this);
+
+        MenuItemCompat.setOnActionExpandListener(item,
+                new MenuItemCompat.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        // SearchView collapsed
+
+                        // Hide keyboard
+                        InputMethodManager imm = (InputMethodManager) getSystemService(
+                                MainActivity.this.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+
+                        return true; // Return true to collapse action view
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        // SearchView expanded
+                        return true; // Return true to expand action view
+                    }
+                });
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        if (presenter != null) {
+            presenter.getUserData(query);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return true;
+    }
 }
