@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/black"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.firozmemon.g_user.ui.main.view.MainActivity"
     tools:showIn="@layout/activity_main">
@@ -24,7 +25,9 @@
             android:id="@+id/noDataFound"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/no_data_found" />
+            android:layout_centerInParent="true"
+            android:text="@string/no_data_found"
+            android:textColor="@android:color/white" />
     </RelativeLayout>
 
 

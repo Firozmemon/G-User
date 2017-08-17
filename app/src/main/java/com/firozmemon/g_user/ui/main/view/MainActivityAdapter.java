@@ -48,12 +48,13 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
 
         String avatarUrl = item.getAvatarUrl();
         String userName = item.getLogin();
+        String score = String.valueOf(item.getScore());
 
         // RequestOptions required for Glide
         RequestOptions requestOptions = new RequestOptions()
                 .override(200)
                 .placeholder(R.mipmap.ic_launcher)
-                .error(R.mipmap.ic_launcher_round);
+                .error(R.mipmap.ic_launcher);
 
         Glide.with(context)
                 .load(avatarUrl)
@@ -61,6 +62,7 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
                 .into(holder.userAvatar);
 
         holder.userName.setText(userName);
+        holder.scoreRating.setText(score);
 
     }
 
@@ -80,6 +82,8 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
         ImageView userAvatar;
         @BindView(R.id.userName)
         TextView userName;
+        @BindView(R.id.scoreRating)
+        TextView scoreRating;
 
         public MyHolder(View itemView) {
             super(itemView);
