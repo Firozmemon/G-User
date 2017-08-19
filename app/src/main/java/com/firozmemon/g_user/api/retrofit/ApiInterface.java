@@ -2,6 +2,7 @@ package com.firozmemon.g_user.api.retrofit;
 
 import com.firozmemon.g_user.model.UserData;
 
+import io.reactivex.Single;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -13,7 +14,7 @@ import retrofit2.http.Query;
 public interface ApiInterface {
 
     @GET("search/users")
-    Call<UserData> getSpecificUserData(@Query("q") String userName);
+    Single<UserData> getSpecificUserData(@Query("q") String userName);
 
 
     // For Pagination

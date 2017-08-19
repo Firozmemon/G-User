@@ -1,4 +1,4 @@
-package com.firozmemon.g_user.ui.main.view;
+package com.firozmemon.g_user.ui.main;
 
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -32,13 +32,12 @@ import com.firozmemon.g_user.R;
 import com.firozmemon.g_user.api.ApiCallingAgent;
 import com.firozmemon.g_user.api.ApiRepository;
 import com.firozmemon.g_user.helper.MyClipboardManager;
+import com.firozmemon.g_user.helper.Utility;
 import com.firozmemon.g_user.model.Item;
 import com.firozmemon.g_user.model.UserData;
-import com.firozmemon.g_user.ui.main.presenter.MainActivityPresenter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class MainActivity extends AppCompatActivity implements MainActivityView, MainActivityAdapter.AdapterItemClickListener, SearchView.OnQueryTextListener {
@@ -62,12 +61,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
     @BindView(R.id.noDataFound)
     TextView noDataFound;
 
-    @OnClick(R.id.fab)
-    void onFabClicked() {
-        Snackbar.make(coordinatorLayout, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
 
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
+
+        // Displaying app icon in toolbar
+        getSupportActionBar().setIcon(R.mipmap.ic_launcher);
     }
 
     @Override
@@ -87,7 +83,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
 
         ApiRepository apiRepository = ApiCallingAgent.getInstance();
         presenter = new MainActivityPresenter(this, apiRepository, AndroidSchedulers.mainThread());
-        presenter.getUserData(DEFAULT_USER_NAME);
+
+        if (Utility.isInternetAvailable(MainActivity.this))
+            presenter.getUserData(DEFAULT_USER_NAME);
+        else
+            displayInternetNotAvailable(true);
     }
 
     @Override
@@ -113,28 +113,38 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
 
         userData = (UserData) obj;
 
-        if (userData.getItems().isEmpty() || userData.getItems().size() < 1) {
-            noDataFound.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-        } else {
-            noDataFound.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
+        displayRecyclerView(true);
 
-            recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
+        recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
 
-            adapter = new MainActivityAdapter(MainActivity.this, userData.getItems());
-            adapter.setAdapterItemClickListener(this);
+        adapter = new MainActivityAdapter(MainActivity.this, userData.getItems());
+        adapter.setAdapterItemClickListener(this);
 
-            recyclerView.setAdapter(adapter);
-        }
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void displayError(String message) {
+        displayRecyclerView(false);
         Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG)
                 .show();
-        noDataFound.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
+    }
+
+    /**
+     * This method handles display of RecyclerView/NoDataFound Textview
+     * w.r.t
+     * boolean passed as parameter
+     *
+     * @param showRecyclerView
+     */
+    private void displayRecyclerView(boolean showRecyclerView) {
+        if (showRecyclerView) {
+            noDataFound.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            noDataFound.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -143,7 +153,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
 
         final String url = item.getHtmlUrl();
 
-        setupAndOpenChromeCustomTab(url);
+        if (Utility.isInternetAvailable(MainActivity.this))
+            setupAndOpenChromeCustomTab(url);
+        else
+            displayInternetNotAvailable(false);
     }
 
     private void setupAndOpenChromeCustomTab(final String url) {
@@ -190,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Connect at LinkedIn");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "Connect with Dev at LinkedIn : https://www.linkedin.com/in/firozmemon0/");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Connect with Developer at LinkedIn : https://www.linkedin.com/in/firozmemon0/");
         return PendingIntent.getActivity(this, 0, shareIntent, 0);
     }
 
@@ -249,8 +262,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        if (presenter != null) {
-            presenter.getUserData(query);
+        if (Utility.isInternetAvailable(MainActivity.this)) {
+            if (presenter != null)
+                presenter.getUserData(query);
         }
         return true;
     }
@@ -258,5 +272,33 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
     @Override
     public boolean onQueryTextChange(String newText) {
         return true;
+    }
+
+    /**
+     * Displays <code>Internet Not Available</code> in Snackbar
+     * and also provides retry button to check if connected to internet.
+     * If connected, will load default user data
+     *
+     * @param shouldModifyUI if true, will update UI accordingly
+     */
+    public void displayInternetNotAvailable(final boolean shouldModifyUI) {
+        if (shouldModifyUI)
+            displayRecyclerView(false);
+
+        Snackbar snackbar = Snackbar.make(coordinatorLayout, R.string.internetNotAvailable, Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (Utility.isInternetAvailable(MainActivity.this)) {
+                            if (presenter != null)
+                                presenter.getUserData(DEFAULT_USER_NAME);
+                        } else
+                            displayInternetNotAvailable(shouldModifyUI);
+                    }
+                });
+        snackbar.getView()
+                .setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary));
+
+        snackbar.show();
     }
 }

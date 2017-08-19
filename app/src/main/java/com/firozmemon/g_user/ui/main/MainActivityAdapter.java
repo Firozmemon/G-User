@@ -1,4 +1,4 @@
-package com.firozmemon.g_user.ui.main.view;
+package com.firozmemon.g_user.ui.main;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

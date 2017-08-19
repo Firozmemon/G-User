@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:background="@color/gray">
 
     <ImageView
         android:id="@+id/userAvatar"
@@ -35,8 +36,8 @@
             android:id="@+id/scoreRating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
             android:layout_gravity="center_vertical"
+            android:textColor="@android:color/white"
             tools:text="3.14159265" />
     </LinearLayout>
 

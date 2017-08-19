@@ -9,4 +9,6 @@
     <string name="share">Share</string>
     <string name="connect">Connect</string>
     <string name="search">Search</string>
+    <string name="retry">Retry</string>
+    <string name="internetNotAvailable">Internet Not Available</string>
 </resources>

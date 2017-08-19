@@ -1,4 +1,4 @@
-package com.firozmemon.g_user.ui.main.view;
+package com.firozmemon.g_user.ui.main;
 
 /**
  * Created by firoz on 5/8/17.

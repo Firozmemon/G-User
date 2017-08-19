@@ -1,18 +1,19 @@
-package com.firozmemon.g_user.ui.main.presenter;
+package com.firozmemon.g_user.ui.main;
 
 import com.firozmemon.g_user.api.ApiRepository;
 import com.firozmemon.g_user.model.UserData;
-import com.firozmemon.g_user.ui.main.view.MainActivityView;
 
 import io.reactivex.Scheduler;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by firoz on 5/8/17.
  */
 
-public class MainActivityPresenter implements PresenterRepository {
+public class MainActivityPresenter {
 
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     private MainActivityView view;
@@ -23,28 +24,29 @@ public class MainActivityPresenter implements PresenterRepository {
         this.view = view;
         this.apiRepository = apiRepository;
         this.mainScheduler = mainScheduler;
-
-        this.apiRepository.setPresenterRepository(this);
     }
 
     public void getUserData(String userName) {
         compositeDisposable.add(apiRepository.getSpecificUser(userName)
                 .subscribeOn(Schedulers.io())
                 .observeOn(mainScheduler)
-                .subscribe());
+                .subscribeWith(new DisposableSingleObserver<UserData>() {
+                    @Override
+                    public void onSuccess(@NonNull UserData userData) {
+                        if (userData.getItems().isEmpty() || userData.getItems().size() < 1)
+                            view.displayError("No Data Found");
+                        else
+                            view.displaySuccess(userData);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        view.displayError(e.getMessage());
+                    }
+                }));
     }
 
     public void unsubscribe() {
         compositeDisposable.clear();
-    }
-
-    @Override
-    public void executionSuccessful(UserData userData) {
-        view.displaySuccess(userData);
-    }
-
-    @Override
-    public void executionFailed(String message) {
-        view.displayError(message);
     }
 }
