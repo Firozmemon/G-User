@@ -84,9 +84,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
         ApiRepository apiRepository = ApiCallingAgent.getInstance();
         presenter = new MainActivityPresenter(this, apiRepository, AndroidSchedulers.mainThread());
 
-        if (Utility.isInternetAvailable(MainActivity.this))
-            presenter.getUserData(DEFAULT_USER_NAME);
-        else
+        if (Utility.isInternetAvailable(MainActivity.this)) {
+            if (adapter == null) // this will be true, only for first time
+                presenter.getUserData(DEFAULT_USER_NAME);
+        } else
             displayInternetNotAvailable(true);
     }
 
@@ -265,7 +266,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
         if (Utility.isInternetAvailable(MainActivity.this)) {
             if (presenter != null)
                 presenter.getUserData(query);
-        }
+        } else
+            displayInternetNotAvailable(false);
         return true;
     }
 
