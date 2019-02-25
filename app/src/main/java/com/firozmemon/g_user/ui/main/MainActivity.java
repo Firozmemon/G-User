@@ -3,6 +3,7 @@ package com.firozmemon.g_user.ui.main;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -29,22 +30,24 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.firozmemon.g_user.R;
-import com.firozmemon.g_user.api.ApiCallingAgent;
-import com.firozmemon.g_user.api.ApiRepository;
 import com.firozmemon.g_user.helper.MyClipboardManager;
 import com.firozmemon.g_user.helper.Utility;
 import com.firozmemon.g_user.model.Item;
 import com.firozmemon.g_user.model.UserData;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import dagger.android.AndroidInjection;
 
-public class MainActivity extends AppCompatActivity implements MainActivityView, MainActivityAdapter.AdapterItemClickListener, SearchView.OnQueryTextListener {
+public class MainActivity extends AppCompatActivity implements MainActivityContract.View,
+        MainActivityAdapter.AdapterItemClickListener, SearchView.OnQueryTextListener {
 
     public static final String DEFAULT_USER_NAME = "firoz memon";
 
-    MainActivityPresenter presenter;
+    @Inject
+    MainActivityContract.Presenter presenter;
     MainActivityAdapter adapter;
     UserData userData;
 
@@ -61,8 +64,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
     @BindView(R.id.noDataFound)
     TextView noDataFound;
 
+    @Inject
+    Context applicationContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -81,10 +88,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
             searchView.setIconified(true);
         }
 
-        ApiRepository apiRepository = ApiCallingAgent.getInstance();
-        presenter = new MainActivityPresenter(this, apiRepository, AndroidSchedulers.mainThread());
-
-        if (Utility.isInternetAvailable(MainActivity.this)) {
+        if (Utility.isInternetAvailable(applicationContext)) {
             if (adapter == null) // this will be true, only for first time
                 presenter.getUserData(DEFAULT_USER_NAME);
         } else
@@ -154,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
 
         final String url = item.getHtmlUrl();
 
-        if (Utility.isInternetAvailable(MainActivity.this))
+        if (Utility.isInternetAvailable(applicationContext))
             setupAndOpenChromeCustomTab(url);
         else
             displayInternetNotAvailable(false);
@@ -168,8 +172,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
         builder.addMenuItem(getString(R.string.connect), setMenuItem());
         builder.setActionButton(BitmapFactory.decodeResource(getResources(),
                 android.R.drawable.ic_menu_share), getString(R.string.share), addActionButton());
-        builder.setStartAnimations(this, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        builder.setExitAnimations(this, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        builder.setStartAnimations(applicationContext, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        builder.setExitAnimations(applicationContext, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 
         CustomTabsIntent mIntent = builder.build();
         try {
@@ -204,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Connect at LinkedIn");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "Connect with Developer at LinkedIn : https://www.linkedin.com/in/firozmemon0/");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Connect with Project Creator at LinkedIn : https://www.linkedin.com/in/firozmemon0/");
         return PendingIntent.getActivity(this, 0, shareIntent, 0);
     }
 
