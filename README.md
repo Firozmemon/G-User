@@ -9,6 +9,7 @@ Code is structured following MVP design pattern
 - Integrating Retrofit library for making Api calls
 - Using Glide library to display users profile picture
 - Viewing users full profile via Chrome-Custom-Tab
+- Dagger2 as Dependency Injection to follow Clean Architecture
 
 ### Libraries Used
 * Butterknife
@@ -17,3 +18,4 @@ Code is structured following MVP design pattern
 * Retrofit
 * Chrome-Custom-tab
 * Glide
+* Dagger2

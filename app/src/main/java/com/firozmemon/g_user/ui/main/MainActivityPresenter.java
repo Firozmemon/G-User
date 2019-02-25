@@ -12,20 +12,20 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * Created by firoz on 5/8/17.
  */
+public class MainActivityPresenter implements MainActivityContract.Presenter {
 
-public class MainActivityPresenter {
-
-    CompositeDisposable compositeDisposable = new CompositeDisposable();
-    private MainActivityView view;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private MainActivityContract.View view;
     private ApiRepository apiRepository;
     private Scheduler mainScheduler;
 
-    public MainActivityPresenter(MainActivityView view, ApiRepository apiRepository, Scheduler mainScheduler) {
+    public MainActivityPresenter(MainActivityContract.View view, ApiRepository apiRepository, Scheduler mainScheduler) {
         this.view = view;
         this.apiRepository = apiRepository;
         this.mainScheduler = mainScheduler;
     }
 
+    @Override
     public void getUserData(String userName) {
         compositeDisposable.add(apiRepository.getSpecificUser(userName)
                 .subscribeOn(Schedulers.io())
@@ -46,6 +46,7 @@ public class MainActivityPresenter {
                 }));
     }
 
+    @Override
     public void unsubscribe() {
         compositeDisposable.clear();
     }
